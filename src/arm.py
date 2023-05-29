@@ -4,12 +4,11 @@ from pygame.math import Vector2
 
 
 class ArmComponent:
-    def __init__(
-        self,
-        length=0.0,
-        angleToGroundRadians=0.0,
-        color=(0, 0, 0)
-    ):
+    """
+    Represents a component of an arm, such as the bicep, forearm, or hand.
+    """
+
+    def __init__(self, length=0.0, angleToGroundRadians=0.0, color=(0, 0, 0)):
         self.length = length
         self.angleToGroundRadians = angleToGroundRadians
         self.color = color
