@@ -1,24 +1,30 @@
 import math
 import pygame
+from pygame.math import Vector2
 
 
 class ArmComponent:
-    length = 0.0
-    angleToGround = 0.0  # in radians
-    color = (0, 0, 0)
-
-    def __init__(self, length, angleToGround, color, next=None, prev=None):
+    def __init__(
+        self,
+        length=0.0,
+        angleToGroundRadians=0.0,
+        color=(0, 0, 0)
+    ):
         self.length = length
-        self.angleToGround = angleToGround
+        self.angleToGroundRadians = angleToGroundRadians
         self.color = color
-        self.next_component = next
-        self.prev_component = prev
+
+    def as_vector2(self) -> Vector2:
+        return Vector2(
+            self.length * math.cos(self.angleToGroundRadians),
+            self.length * math.sin(self.angleToGroundRadians),
+        )
 
 
 class Arm:
     def __init__(
         self,
-        root_pos,
+        root_pos: Vector2,
         bicep: ArmComponent,
         forearm: ArmComponent,
         hand: ArmComponent,
@@ -30,38 +36,36 @@ class Arm:
         self.arm_components = [bicep, forearm, hand]
 
     def update(self, dt):
-        for arm_component in self.arm_components:
-            arm_component.angleToGround += 0.001 * dt
+        for i, arm_component in enumerate(self.arm_components):
+            arm_component.angleToGroundRadians += 0.001 * (i + 1) * dt
 
     def draw(self, screen):
-        cur_component = self.bicep
-        last_end_pos = self.root_pos
+        # Calculate the positions of the arm components
+        bicep_start = self.root_pos
+        bicep_end = bicep_start + self.bicep.as_vector2()
 
-        while cur_component != None:
-            end_pos = (
-                (
-                    cur_component.length
-                    * math.cos(cur_component.angleToGround),
-                    cur_component.length
-                    * math.sin(cur_component.angleToGround),
-                ),
-            )
+        forearm_start = bicep_end
+        forearm_end = forearm_start + self.forearm.as_vector2()
 
-            pygame.draw.line(
-                screen,
-                cur_component.color,
-                last_end_pos,  # type: ignore
-                end_pos,  # type: ignore
-                width=5,
-            )
+        hand_start = forearm_end
+        hand_end = hand_start + self.hand.as_vector2()
 
-            cur_component = cur_component.next_component
-            last_end_pos = end_pos
+        # Draw the arm components
+        pygame.draw.line(screen, self.bicep.color, bicep_start, bicep_end, 8)
+        pygame.draw.line(
+            screen, self.forearm.color, forearm_start, forearm_end, 6
+        )
+        pygame.draw.line(screen, self.hand.color, hand_start, hand_end, 5)
 
-    def forward_kinematics(self) -> tuple[float, float]:
-        x = 0
-        y = 0
+        # Draw the end effector
+        pygame.draw.circle(
+            screen, (200, 255, 200), self.forward_kinematics(), 5
+        )
+
+    def forward_kinematics(self) -> Vector2:
+        pos = self.root_pos.copy()
+
         for arm_component in self.arm_components:
-            x += arm_component.length * math.cos(arm_component.angleToGround)
-            y += arm_component.length * math.sin(arm_component.angleToGround)
-        return (x, y)
+            pos += arm_component.as_vector2()
+
+        return pos
