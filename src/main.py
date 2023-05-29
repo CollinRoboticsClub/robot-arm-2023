@@ -13,12 +13,15 @@ if __name__ == "__main__":
     running = True
     dt = 0
 
+    # Create ArmComponents
     bicep = ArmComponent(200, 0, (255, 0, 0))
     forearm = ArmComponent(150, 0.5 * 3.14, (0, 255, 0))
     hand = ArmComponent(100, 0.25 * 3.14, (0, 0, 255))
 
+    # Create Arm
     arm = Arm(Vector2(*screen.get_rect().center), bicep, forearm, hand)
 
+    # main loop
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:  # if the user clicks the X button

@@ -35,6 +35,7 @@ class Arm:
         self.arm_components = [bicep, forearm, hand]
 
     def update(self, dt):
+        # Make the arm components rotate for demonstration purposes
         for i, arm_component in enumerate(self.arm_components):
             arm_component.angleToGroundRadians += 0.001 * (i + 1) * dt
 
