@@ -7,19 +7,31 @@ from arm import Arm, ArmComponent
 if __name__ == "__main__":
     # pygame setup
     pygame.init()
-    screen = pygame.display.set_mode((1600, 1000))
+    screen = pygame.display.set_mode((900, 600))
     pygame.display.set_caption("Robot Simulator")
     clock = pygame.time.Clock()
     running = True
     dt = 0
 
     # Create ArmComponents
-    bicep = ArmComponent(200, 0, (255, 0, 0))
-    forearm = ArmComponent(150, 0.5 * 3.14, (0, 255, 0))
-    hand = ArmComponent(100, 0.25 * 3.14, (0, 0, 255))
+    main_len = screen.get_width() * 0.2
+    bicep_len = main_len * 0.9
+    forearm_len = main_len * 0.6
+    hand_len = main_len * 0.3
+
+    bicep = ArmComponent(bicep_len, (255, 0, 0))
+    forearm = ArmComponent(forearm_len, (0, 255, 0))
+    hand = ArmComponent(hand_len, (0, 0, 255))
 
     # Create Arm
-    arm = Arm(Vector2(*screen.get_rect().center), bicep, forearm, hand)
+    arm = Arm(
+        Vector2(*screen.get_rect().center) - Vector2(300, -200),
+        bicep,
+        forearm,
+        hand,
+    )
+
+    font = pygame.font.SysFont("Calibri", 20)
 
     # main loop
     while running:
@@ -36,6 +48,13 @@ if __name__ == "__main__":
         # draw the arm
         arm.update(dt)
         arm.draw(screen)
+
+        screen.blit(
+            font.render(
+                f"{arm.angle_diagnostic_text()}", True, (255, 255, 255)
+            ),
+            (10, 10),
+        )
 
         # update the screen
         pygame.display.flip()
